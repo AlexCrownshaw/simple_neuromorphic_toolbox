@@ -1,0 +1,9 @@
+/.vs
+/.vscode
+/main.exe
+/simple_neuromorphic_toolbox.code-workspace
+/simple_neuromorphic_toolbox.sln
+/simple_neuromorphic_toolbox.vcxproj
+/simple_neuromorphic_toolbox.vcxproj.filters
+/simple_neuromorphic_toolbox.vcxproj.user
+/x64
