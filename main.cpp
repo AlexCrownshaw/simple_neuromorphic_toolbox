@@ -4,7 +4,7 @@
 #include "simple_neuromorphic_toolbox.cpp"
 
 int main() {
-	
+
     // // Define parameters to pass to Neuron class
 	// std::vector <Node> links{};
 	// std::vector <double> link_weights{0.f, 1.f, 2.f};
@@ -26,7 +26,10 @@ int main() {
 	// Link link;
 	// link.weight = 1.0;
 
-	std::vector <int> structure_main {2, 2, 2};
-	std::cout << structure_main.size();
+	std::vector <int> structure_main {2, 2, 1};
 	Network nn(structure_main);
+	
+	std::vector <Node> layer_0_node_0_links {nn.nodes.at(0).at(0).getLinks()};
+	std::vector <double> layer_0_node_0_weights {nn.nodes.at(0).at(0).getWeights()};
+	std::cout << layer_0_node_0_weights.size();
 }

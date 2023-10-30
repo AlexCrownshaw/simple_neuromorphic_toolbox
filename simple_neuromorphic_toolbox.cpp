@@ -63,9 +63,8 @@ public:
 
 // public:
 
-	Network(std::vector <int> structure) {
-		// structure = structure_value;
-		std::cout << structure.size();
+	Network(std::vector <int> structure_value) {
+		structure = structure_value;
 
 		// Pre-allocate size of layer/node vectors
 		// nodes.reserve(structure.size());
@@ -84,8 +83,8 @@ public:
 			if (i_layer != 0)	{
 				for (int i_node {0}; i_node < nodes.at(i_layer - 1).size(); i_node++)	{
 					nodes.at(i_layer - 1).at(i_node).setLinks(nodes.at(i_layer));
-					std::vector<double> weights(1.f, nodes.at(i_layer).size());
-					nodes.at(i_layer).at(i_node).setWeights(weights);
+					std::vector<double> weights(nodes.at(i_layer).size(), 1.f);
+					nodes.at(i_layer - 1).at(i_node).setWeights(weights);
 					// nodes.at(i_layer - 1).at(i_node).setLinks(nodes.at(i_layer), weights);
 				}
 			}
