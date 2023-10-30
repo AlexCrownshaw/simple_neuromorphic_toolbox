@@ -25,6 +25,7 @@ int main() {
 	Network nn(structure);
 	nn.setInputs(inputs);
 	nn.setExpOutputs(outputs);
+	nn.run(1);
 
 	std::cout << "stop";
 }

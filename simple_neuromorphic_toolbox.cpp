@@ -1,19 +1,54 @@
 #include <vector>
 #include <iostream>
+#include <String>
+#include <cmath>
 
+struct Result	{
+	std::vector <double> output;
+	double learning_accuracy;
+};
 
 struct Epoch	{
-	double learning_eff {};
-
+	double learning_eff;
+	double learning_accuracy;
+	std::vector <Result> results;
 };
 
 class Node {
 private:
 
+	int activation_func {};
+
 	std::vector <Node> links;
 	std::vector <double> weights;
 
+	double value;
+	std::vector <double> input_buffer;
+
+	double sigmoid(double x)	{
+		return 1 / (1 + exp(-x));
+	}
+
 public:
+
+	void forwardValue()	{
+		for (int i_link {}; i_link < links.size(); i_link++)	{
+			links.at(i_link).setBuffer(value * weights.at(i_link));
+		}
+	}
+
+	void computeInput()	{
+		double input_sum {};
+		for (int i_input {}; i_input < input_buffer.size(); i_input++)	{
+			input_sum += input_buffer.at(i_input);
+		}
+
+		if (activation_func == 0)	{
+			value = sigmoid(input_sum);
+		}
+
+		input_buffer.clear();
+	}
 
 	// links.getter
 	std::vector <Node> getLinks()	{
@@ -33,6 +68,21 @@ public:
 	// weights.setter
 	void setWeights(std::vector <double> value)	{
 		weights = value;
+	}
+
+	// weights.setter
+	void setActivationFunc(int value)	{
+		activation_func = value;
+	}
+
+	// input_buffer.setter
+	void setBuffer(double value)	{
+		input_buffer.push_back(value);
+	}
+
+	// value.getter
+	double getValue()	{
+		return value;
 	}
 };
 
@@ -72,9 +122,52 @@ public:
 		}
 	}
 
+	std::vector <Epoch> run(int n_epoch)	{
+		std::vector <Epoch> epochs {};
+		for (int i_epoch {}; i_epoch < n_epoch; i_epoch++)	{
+			epochs.push_back(runEpoch());
+		}
+
+		return epochs;
+	}
+
+	Result evalResult(std::vector <double> output, std::vector <double> exp_output)	{
+		Result result;
+
+		return result;
+	}
+
 	Epoch runEpoch()	{
 		Epoch epoch;
-		return epoch;
+
+		for (int i_input {}; i_input < inputs.size(); i_input++)	{
+			std::vector <double> output;
+
+			for (int i_layer {}; i_layer < nodes.size(); i_layer++)	{
+				for (int i_node {}; i_node < nodes.at(i_layer).size(); i_node++)	{
+
+					// Fill buffer of first nodes with inputs
+					if (i_layer == 0)	{
+						nodes.at(0).at(i_node).setBuffer(inputs.at(i_input).at(i_node));
+					}
+
+					// Build output vector
+					else if (i_layer == nodes.size() - 1)	{
+						output.push_back(nodes.at(i_layer).at(i_node).getValue());
+					}
+					
+					else {
+						// Sum buffers, compute values and forward to linked nodes
+						nodes.at(i_layer).at(i_node).computeInput();
+						nodes.at(i_layer).at(i_node).forwardValue();
+					}
+				}
+				// Compare output to expected output and compute output metrics
+				epoch.results.push_back(evalResult(output, exp_outputs.at(i_input)));
+			}
+		}
+		
+	return epoch;
 	}
 
 	// structure.getter
