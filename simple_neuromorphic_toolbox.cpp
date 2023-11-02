@@ -14,11 +14,6 @@ struct Epoch	{
 	std::vector <Result> results;
 };
 
-double rand_gen() {
-   // return a uniformly distributed random value
-   return ( (double)(rand()) + 1. )/( (double)(RAND_MAX) + 1. );
-}
-
 class Node {
 private:
 
@@ -111,10 +106,20 @@ public:
 		createNetwork();
 	}
 
+	std::vector <double> initWeights(int size) {
+	// return a vetor of uniformly distributed random values of length 'size'
+	std::vector <double> weights;
+	for (int i_weight {}; i_weight < size; i_weight++)	{
+			weights.push_back(((double)(rand()) + 1.)/((double)(RAND_MAX) + 1.));
+	}
+		
+		return weights;
+	}
+
 	void createNetwork()	{
 		for (int i_layer {}; i_layer < structure.size(); i_layer++)	{
 
-			// Create Node objects for layer
+			// Create Node objects for each layer
 			std::vector <Node> layer_nodes {};
 			for (int i_node {0}; i_node < structure.at(i_layer); i_node++)	{
 				layer_nodes.push_back(Node());
@@ -130,7 +135,7 @@ public:
 						p_links.push_back(&nodes.at(i_layer).at(i_link));
 					}
 					nodes.at(i_layer - 1).at(i_node).setLinks(p_links);
-					std::vector<double> weights(nodes.at(i_layer).size(), rand_gen());
+					std::vector<double> weights {initWeights(nodes.at(i_layer - 1).size())};
 					nodes.at(i_layer - 1).at(i_node).setWeights(weights);
 				}
 			}
@@ -178,9 +183,9 @@ public:
 					else if (i_layer == nodes.size() - 1)	{
 						output.push_back(nodes.at(i_layer).at(i_node).getValue());
 					}
-					
+										
+					// Sum buffers, compute values and forward to linked nodes
 					else {
-						// Sum buffers, compute values and forward to linked nodes
 						nodes.at(i_layer).at(i_node).computeInput();
 						nodes.at(i_layer).at(i_node).forwardValue();
 					}
