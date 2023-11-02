@@ -5,21 +5,26 @@
 
 struct Result	{
 	std::vector <double> output;
-	double learning_accuracy;
+	double learn_acc;
 };
 
 struct Epoch	{
-	double learning_eff;
-	double learning_accuracy;
+	double learn_eff;
+	double learn_acc;
 	std::vector <Result> results;
 };
+
+double rand_gen() {
+   // return a uniformly distributed random value
+   return ( (double)(rand()) + 1. )/( (double)(RAND_MAX) + 1. );
+}
 
 class Node {
 private:
 
 	int activation_func {};
 
-	std::vector <Node> links;
+	std::vector <Node *> p_links;
 	std::vector <double> weights;
 
 	double value;
@@ -32,8 +37,8 @@ private:
 public:
 
 	void forwardValue()	{
-		for (int i_link {}; i_link < links.size(); i_link++)	{
-			links.at(i_link).setBuffer(value * weights.at(i_link));
+		for (int i_link {}; i_link < p_links.size(); i_link++)	{
+			p_links.at(i_link)->setBuffer(value * weights.at(i_link));
 		}
 	}
 
@@ -52,12 +57,17 @@ public:
 
 	// links.getter
 	std::vector <Node> getLinks()	{
+		std::vector <Node> links;
+		for (int i_link {}; i_link < p_links.size(); i_link++)	{
+			links.push_back(*p_links.at(i_link));
+		}
+
 		return links;
 	}
 
 	// links.setter
-	void setLinks(std::vector <Node> value)	{
-		links = value;
+	void setLinks(std::vector <Node *> value)	{
+		p_links = value;
 	}
 
 	// weights.getter
@@ -114,8 +124,13 @@ public:
 			// Attach Node objects and weights to previous layer
 			if (i_layer != 0)	{
 				for (int i_node {0}; i_node < nodes.at(i_layer - 1).size(); i_node++)	{
-					nodes.at(i_layer - 1).at(i_node).setLinks(nodes.at(i_layer));
-					std::vector<double> weights(nodes.at(i_layer).size(), 1.f);
+					// Create vector of Node pointers to linked nodes
+					std::vector <Node *> p_links;
+					for (int i_link {}; i_link < nodes.at(i_layer).size(); i_link++)	{
+						p_links.push_back(&nodes.at(i_layer).at(i_link));
+					}
+					nodes.at(i_layer - 1).at(i_node).setLinks(p_links);
+					std::vector<double> weights(nodes.at(i_layer).size(), rand_gen());
 					nodes.at(i_layer - 1).at(i_node).setWeights(weights);
 				}
 			}
@@ -133,6 +148,14 @@ public:
 
 	Result evalResult(std::vector <double> output, std::vector <double> exp_output)	{
 		Result result;
+		result.output = output;
+
+		for (int i_output {}; i_output < output.size(); i_output++)	{
+			if (output.at(i_output) == exp_output.at(i_output))	{
+				result.learn_acc += 1;
+			}
+		}
+		result.learn_acc /= output.size();
 
 		return result;
 	}
@@ -162,8 +185,11 @@ public:
 						nodes.at(i_layer).at(i_node).forwardValue();
 					}
 				}
+
 				// Compare output to expected output and compute output metrics
-				epoch.results.push_back(evalResult(output, exp_outputs.at(i_input)));
+				if (i_layer == nodes.size() - 1)	{
+					epoch.results.push_back(evalResult(output, exp_outputs.at(i_input)));
+				}
 			}
 		}
 		

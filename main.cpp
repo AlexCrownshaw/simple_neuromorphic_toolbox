@@ -27,5 +27,5 @@ int main() {
 	nn.setExpOutputs(outputs);
 	nn.run(1);
 
-	std::cout << "stop";
+	std::cout << "breakpoint";
 }
