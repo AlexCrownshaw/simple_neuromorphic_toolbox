@@ -2,6 +2,11 @@
 #include <iostream>
 #include <String>
 #include <cmath>
+#include <algorithm>
+#include <random>
+
+
+auto rng = std::default_random_engine {};
 
 struct Result	{
 	std::vector <double> output;
@@ -25,8 +30,14 @@ private:
 	double value;
 	std::vector <double> input_buffer;
 
-	double sigmoid(double x)	{
-		return 1 / (1 + exp(-x));
+	double sigmoid(double x, bool diff)	{
+		double s {1 / (1 + exp(-x))};
+
+		if (diff == true)	{
+			return s * (1 - s);
+		}
+		
+		return s;
 	}
 
 public:
@@ -44,7 +55,7 @@ public:
 		}
 
 		if (activation_func == 0)	{
-			value = sigmoid(input_sum);
+			value = sigmoid(input_sum, false);
 		}
 
 		input_buffer.clear();
@@ -107,13 +118,19 @@ public:
 	}
 
 	std::vector <double> initWeights(int size) {
-	// return a vetor of uniformly distributed random values of length 'size'
+	// return a vector of uniformly distributed random values of length 'size'
 	std::vector <double> weights;
 	for (int i_weight {}; i_weight < size; i_weight++)	{
 			weights.push_back(((double)(rand()) + 1.)/((double)(RAND_MAX) + 1.));
 	}
 		
 		return weights;
+	}
+
+	std::vector <double> shuffle_input(std::vector <double> input)	{
+		std::shuffle(std::begin(input), std::end(input), rng);
+
+		return input;
 	}
 
 	void createNetwork()	{
@@ -213,7 +230,9 @@ public:
 
 	// inputs.setter
 	void setInputs(std::vector <std::vector<double>> value)	{
-		inputs = value;
+		for (int i_value {}; i_value < value.size(); i_value++)	{
+			inputs.push_back(shuffle_input(value.at(i_value)));
+		}
 	}
 
 	// inputs.getter
